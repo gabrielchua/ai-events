@@ -1,4 +1,4 @@
-# AI Tinkers
+# AI Tinkerers
 date: 2024-11-19
 url: https://singapore.aitinkerers.org/p/ai-tinkerers-singapore-3rd-meetup-november-19th-2024
 tags: [developer, talk]
