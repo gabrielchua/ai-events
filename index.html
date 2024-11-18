@@ -104,6 +104,7 @@
             align-items: center;
             justify-content: center;
             box-shadow: var(--shadow);
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .filters-container {
@@ -117,7 +118,6 @@
             justify-content: center;
             margin-bottom: 1rem;
         }
-
 
         .filter-btn {
             padding: 0.5rem 1rem;
@@ -146,7 +146,7 @@
             border-radius: 12px;
             padding: 1.5rem;
             box-shadow: var(--shadow);
-            transition: transform 0.2s;
+            transition: transform 0.2s, opacity 0.3s;
         }
 
         .event-card:hover {
@@ -194,7 +194,14 @@
             padding: 2rem;
         }
 
-        /* Removed .show-past-events styles */
+        /* Optional: Styles specific to Past Events section */
+        #past-events .section-title {
+            color: var(--text-secondary);
+        }
+
+        #past-events .event-card {
+            opacity: 0.8; /* Slightly dimmed to indicate past */
+        }
 
         .highlighted-section {
             margin-bottom: 3rem;
@@ -262,6 +269,11 @@
                 <h2 class="section-title">Upcoming Events</h2>
                 <div class="events-grid"></div>
             </div>
+            <!-- New Past Events Section -->
+            <div id="past-events">
+                <h2 class="section-title">Past Events</h2>
+                <div class="events-grid"></div>
+            </div>
         </main>
     </div>
 
@@ -292,6 +304,9 @@
         // Function to fetch and parse events from markdown
         async function fetchEvents() {
             const response = await fetch('events.md');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
             const text = await response.text();
             const events = parseMarkdown(text);
             return events;
@@ -322,7 +337,7 @@
                         .split(',')
                         .map(tag => tag.trim());
                 } else if (line.startsWith('highlighted: ')) {
-                    currentEvent.highlighted = line.slice(12).trim() === 'true';
+                    currentEvent.highlighted = line.slice(12).trim().toLowerCase() === 'true';
                 }
             });
 
@@ -336,67 +351,73 @@
         // Function to render events with filtering
         function renderEvents(events, filter = 'all') {
             const highlightedGrid = document.querySelector('#highlighted-events .events-grid');
-            const regularGrid = document.querySelector('#regular-events .events-grid');
-            
+            const upcomingGrid = document.querySelector('#regular-events .events-grid');
+            const pastGrid = document.querySelector('#past-events .events-grid');
+
             highlightedGrid.innerHTML = '';
-            regularGrid.innerHTML = '';
+            upcomingGrid.innerHTML = '';
+            pastGrid.innerHTML = '';
 
-            let filteredEvents = [...events];
             const today = new Date();
-
-            // Filter out past events (always show only upcoming events)
-            filteredEvents = filteredEvents.filter(event => new Date(event.date) >= today);
+            today.setHours(0,0,0,0); // Normalize to midnight for accurate comparison
 
             // Apply tag filter
+            let filteredEvents = [...events];
             if (filter !== 'all') {
-                filteredEvents = filteredEvents.filter(event => event.tags.includes(filter));
+                const filterLower = filter.toLowerCase();
+                filteredEvents = filteredEvents.filter(event => event.tags.map(tag => tag.toLowerCase()).includes(filterLower));
             }
 
-            if (filteredEvents.length === 0) {
-                const noEvents = document.createElement('div');
-                noEvents.className = 'no-events';
-                noEvents.textContent = 'No events found matching your criteria';
-                regularGrid.appendChild(noEvents);
-                return;
-            }
+            // Separate into upcoming and past events
+            const upcomingEvents = filteredEvents.filter(event => isSameOrAfter(event.date, today));
+            const pastEvents = filteredEvents.filter(event => !isSameOrAfter(event.date, today));
 
-            // Separate highlighted and regular events
-            const highlighted = filteredEvents.filter(event => event.highlighted);
-            const regular = filteredEvents.filter(event => !event.highlighted);
+            // Handle Highlighted Events (upcoming only)
+            const highlighted = upcomingEvents.filter(event => event.highlighted);
+            // Remove highlighted events from upcomingEvents to avoid duplication
+            const regularUpcoming = upcomingEvents.filter(event => !event.highlighted);
 
             // Hide highlighted section if empty
             document.getElementById('highlighted-events').style.display = 
                 highlighted.length ? 'block' : 'none';
 
-            // Render events
-            const renderEventCard = (event, container) => {
-                const card = document.createElement('div');
-                card.className = `event-card ${event.highlighted ? 'highlighted' : ''}`;
-                card.innerHTML = `
-                    <div class="event-date">${formatDate(event.date)}</div>
-                    <div class="event-name">${event.name}</div>
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
-                        ${event.tags.map(tag => `<div class="event-tag">${tag}</div>`).join('')}
-                    </div>
-                    <a href="${event.url}" class="event-link" target="_blank">Learn more →</a>
-                `;
-                container.appendChild(card);
-            };
-
+            // Render Highlighted Events
             highlighted.forEach(event => renderEventCard(event, highlightedGrid));
-            regular.forEach(event => renderEventCard(event, regularGrid));
+
+            // Render Upcoming Regular Events
+            regularUpcoming.forEach(event => renderEventCard(event, upcomingGrid));
+
+            // Render Past Events
+            pastEvents.forEach(event => renderEventCard(event, pastGrid));
+
+            // Handle "No events" message for Upcoming and Past separately
+            if (regularUpcoming.length === 0 && highlighted.length === 0) {
+                const noUpcoming = document.createElement('div');
+                noUpcoming.className = 'no-events';
+                noUpcoming.textContent = 'No upcoming events found matching your criteria';
+                upcomingGrid.appendChild(noUpcoming);
+            }
+
+            if (pastEvents.length === 0) {
+                const noPast = document.createElement('div');
+                noPast.className = 'no-events';
+                noPast.textContent = 'No past events found';
+                pastGrid.appendChild(noPast);
+            }
         }
 
         // Function to render filter buttons
         function renderFilters(events) {
             const filters = document.getElementById('filters');
             // Get unique tags from all events
-            const tags = ['all', ...new Set(events.flatMap(event => event.tags))];
+            const tags = ['all', ...new Set(events.flatMap(event => event.tags.map(tag => tag.toLowerCase())))];
+
+            filters.innerHTML = ''; // Clear existing filters
 
             tags.forEach(tag => {
                 const button = document.createElement('button');
                 button.className = 'filter-btn';
-                button.textContent = tag.charAt(0).toUpperCase() + tag.slice(1);
+                button.textContent = capitalizeFirstLetter(tag);
                 if (tag === 'all') button.classList.add('active');
                 filters.appendChild(button);
             });
@@ -410,6 +431,41 @@
                 month: 'long',
                 day: 'numeric'
             });
+        }
+
+        // Function to render a single event card
+        function renderEventCard(event, container) {
+            const card = document.createElement('div');
+            card.className = `event-card ${event.highlighted ? 'highlighted' : ''}`;
+            card.innerHTML = `
+                <div class="event-date">${formatDate(event.date)}</div>
+                <div class="event-name">${event.name}</div>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                    ${event.tags.map(tag => `<div class="event-tag">${tag}</div>`).join('')}
+                </div>
+                <a href="${event.url}" class="event-link" target="_blank">Learn more →</a>
+            `;
+            container.appendChild(card);
+        }
+
+        // Helper function to capitalize the first letter
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        // Function to parse a date string as a local date (ignoring time zones)
+        function parseLocalDate(dateStr) {
+            const [year, month, day] = dateStr.split('-').map(Number);
+            return new Date(year, month - 1, day);
+        }
+
+        // Function to check if eventDate is same or after today
+        function isSameOrAfter(eventDateStr, today) {
+            const eventDate = parseLocalDate(eventDateStr);
+            // Normalize both dates to midnight
+            eventDate.setHours(0,0,0,0);
+            today.setHours(0,0,0,0);
+            return eventDate >= today;
         }
 
         // Initialize the application
@@ -434,6 +490,9 @@
                 renderEvents(events);
             } catch (error) {
                 console.error('Error loading events:', error);
+                // Optionally, display an error message to the user
+                const main = document.querySelector('main');
+                main.innerHTML = `<div class="no-events">Failed to load events. Please try again later.</div>`;
             }
         }
 
