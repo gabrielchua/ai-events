@@ -13,6 +13,11 @@ date: 2024-11-19
 url: https://www.meetup.com/datascience-sg-singapore/events/304394713/
 tags: [developer, talk]
 
+# AI Wednesdays - The One About Ai2
+date: 2024-11-20
+url: https://cal.gov.sg/dzar7fvpw961x5ml7x5l15vq
+tags: [talk]
+
 # GraphRAG Unleashed: Supercharging LLMs with KGs
 date: 2024-11-20
 url: https://meetu.ps/e/Nyd49/wcYr1/i
