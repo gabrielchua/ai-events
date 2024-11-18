@@ -16,7 +16,7 @@ tags: [developer, talk]
 # ✨ AI Wednesdays - The One About Ai2
 date: 2024-11-20
 url: https://cal.gov.sg/dzar7fvpw961x5ml7x5l15vq
-tags: [talk]
+tags: [developer, talk]
 
 # 🌐 GraphRAG Unleashed: Supercharging LLMs with KGs
 date: 2024-11-20
