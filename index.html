@@ -51,10 +51,10 @@
             margin-bottom: 3rem;
         }
 
-        /* New styles for the additional message */
+        /* Styles for the additional message */
         .additional-message {
             font-size: 1rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             color: var(--text-secondary);
         }
 
@@ -66,6 +66,20 @@
 
         .additional-message a:hover {
             text-decoration: underline;
+        }
+
+        /* Styles for the "Built with o1-mini" message */
+        .built-with {
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .built-with code {
+            font-family: monospace, monospace;
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
         }
 
         h1 {
@@ -104,7 +118,6 @@
             margin-bottom: 1rem;
         }
 
-        /* Removed .date-filters and .date-input styles */
 
         .filter-btn {
             padding: 0.5rem 1rem;
@@ -181,19 +194,7 @@
             padding: 2rem;
         }
 
-        .show-past-events {
-            display: flex;
-            justify-content: center;
-            margin-top: 1rem;
-        }
-
-        .toggle-label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            color: var(--text-secondary);
-        }
+        /* Removed .show-past-events styles */
 
         .highlighted-section {
             margin-bottom: 3rem;
@@ -213,28 +214,43 @@
             .events-grid {
                 grid-template-columns: 1fr;
             }
-            /* Removed .date-filters responsive styles */
+            /* Removed .show-past-events responsive styles */
         }
+
+        /* Optional: Adjust footer styles if keeping footer
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--filter-bg);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .footer code {
+            font-family: monospace, monospace;
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+        }
+        */
     </style>
 </head>
 <body>
     <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode">🌚</button>
     <div class="container">
         <header>
-            <!-- New additional message -->
+            <h1>Singapore AI Events 🇸🇬</h1>
+            <!-- Additional message -->
             <p class="additional-message">
-                For more events - <a href="https://lu.ma/sg-ai" target="_blank" rel="noopener noreferrer">go to https://lu.ma/sg-ai</a>
+                For 18-23 Nov 2024. See more events here - <a href="https://lu.ma/sg-ai?utm_source=website" target="_blank" rel="noopener noreferrer">https://lu.ma/sg-ai</a>
             </p>
-            <h1>AI Events in SG 🇸🇬</h1>
+            <!-- Built with o1-mini message -->
+            <p class="built-with">
+                Built with <code>o1-mini</code>
+            </p>
             <div class="filters-container">
                 <div class="filters" id="filters"></div>
-                <!-- Removed the entire date-filters div -->
-                <div class="show-past-events">
-                    <label class="toggle-label">
-                        <input type="checkbox" id="show-past-events">
-                        <span>Show past events</span>
-                    </label>
-                </div>
             </div>
         </header>
         <main>
@@ -321,7 +337,6 @@
         function renderEvents(events, filter = 'all') {
             const highlightedGrid = document.querySelector('#highlighted-events .events-grid');
             const regularGrid = document.querySelector('#regular-events .events-grid');
-            const showPastEvents = document.getElementById('show-past-events').checked;
             
             highlightedGrid.innerHTML = '';
             regularGrid.innerHTML = '';
@@ -329,10 +344,8 @@
             let filteredEvents = [...events];
             const today = new Date();
 
-            // Filter out past events unless showPastEvents is true
-            if (!showPastEvents) {
-                filteredEvents = filteredEvents.filter(event => new Date(event.date) >= today);
-            }
+            // Filter out past events (always show only upcoming events)
+            filteredEvents = filteredEvents.filter(event => new Date(event.date) >= today);
 
             // Apply tag filter
             if (filter !== 'all') {
@@ -405,7 +418,6 @@
                 const events = await fetchEvents();
                 renderFilters(events);
 
-                const showPastEvents = document.getElementById('show-past-events');
                 const filters = document.getElementById('filters');
                 let currentFilter = 'all';
 
@@ -416,10 +428,6 @@
                         currentFilter = e.target.textContent.toLowerCase();
                         renderEvents(events, currentFilter);
                     }
-                });
-
-                showPastEvents.addEventListener('change', () => {
-                    renderEvents(events, currentFilter);
                 });
 
                 // Initial render
