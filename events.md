@@ -1,3 +1,8 @@
+# LLMs & Beer
+date: 2024-11-18
+url: https://lu.ma/cgs8rl6j?tk=sIgEb6
+tags: [developer, social]
+
 # AI Tinkerers
 date: 2024-11-19
 url: https://singapore.aitinkerers.org/p/ai-tinkerers-singapore-3rd-meetup-november-19th-2024
@@ -27,6 +32,11 @@ tags: [social]
 date: 2024-11-21
 url: https://openai.com/devday/
 tags: [developer, conference]
+
+# AI Engineering Singapore Meetup
+date: 2024-11-21
+url: https://lu.ma/6asibtr6
+tags: [developer, social]
 
 # GovTech x OpenAI Hackathon
 date: 2024-11-22

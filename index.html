@@ -51,6 +51,23 @@
             margin-bottom: 3rem;
         }
 
+        /* New styles for the additional message */
+        .additional-message {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .additional-message a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .additional-message a:hover {
+            text-decoration: underline;
+        }
+
         h1 {
             font-size: 2.5rem;
             margin-bottom: 1rem;
@@ -87,20 +104,7 @@
             margin-bottom: 1rem;
         }
 
-        .date-filters {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 1rem;
-        }
-
-        .date-input {
-            padding: 0.5rem;
-            border-radius: 8px;
-            border: 1px solid var(--text-secondary);
-            background: var(--card-bg);
-            color: var(--text);
-        }
+        /* Removed .date-filters and .date-input styles */
 
         .filter-btn {
             padding: 0.5rem 1rem;
@@ -209,10 +213,7 @@
             .events-grid {
                 grid-template-columns: 1fr;
             }
-            .date-filters {
-                flex-direction: column;
-                align-items: center;
-            }
+            /* Removed .date-filters responsive styles */
         }
     </style>
 </head>
@@ -220,19 +221,14 @@
     <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode">🌚</button>
     <div class="container">
         <header>
+            <!-- New additional message -->
+            <p class="additional-message">
+                For more events - <a href="https://lu.ma/sg-ai" target="_blank" rel="noopener noreferrer">go to https://lu.ma/sg-ai</a>
+            </p>
             <h1>AI Events in SG 🇸🇬</h1>
             <div class="filters-container">
                 <div class="filters" id="filters"></div>
-                <div class="date-filters">
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <span>From:</span>
-                        <input type="date" id="start-date" class="date-input" placeholder="Start date">
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <span>To:</span>
-                        <input type="date" id="end-date" class="date-input" placeholder="End date">
-                    </div>
-                </div>
+                <!-- Removed the entire date-filters div -->
                 <div class="show-past-events">
                     <label class="toggle-label">
                         <input type="checkbox" id="show-past-events">
@@ -322,7 +318,7 @@
         }
 
         // Function to render events with filtering
-        function renderEvents(events, filter = 'all', startDate = null, endDate = null) {
+        function renderEvents(events, filter = 'all') {
             const highlightedGrid = document.querySelector('#highlighted-events .events-grid');
             const regularGrid = document.querySelector('#regular-events .events-grid');
             const showPastEvents = document.getElementById('show-past-events').checked;
@@ -341,14 +337,6 @@
             // Apply tag filter
             if (filter !== 'all') {
                 filteredEvents = filteredEvents.filter(event => event.tags.includes(filter));
-            }
-
-            // Apply date filters
-            if (startDate) {
-                filteredEvents = filteredEvents.filter(event => new Date(event.date) >= new Date(startDate));
-            }
-            if (endDate) {
-                filteredEvents = filteredEvents.filter(event => new Date(event.date) <= new Date(endDate));
             }
 
             if (filteredEvents.length === 0) {
@@ -417,8 +405,6 @@
                 const events = await fetchEvents();
                 renderFilters(events);
 
-                const startDate = document.getElementById('start-date');
-                const endDate = document.getElementById('end-date');
                 const showPastEvents = document.getElementById('show-past-events');
                 const filters = document.getElementById('filters');
                 let currentFilter = 'all';
@@ -428,20 +414,12 @@
                         document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
                         e.target.classList.add('active');
                         currentFilter = e.target.textContent.toLowerCase();
-                        renderEvents(events, currentFilter, startDate.value, endDate.value);
+                        renderEvents(events, currentFilter);
                     }
                 });
 
-                startDate.addEventListener('change', () => {
-                    renderEvents(events, currentFilter, startDate.value, endDate.value);
-                });
-
-                endDate.addEventListener('change', () => {
-                    renderEvents(events, currentFilter, startDate.value, endDate.value);
-                });
-
                 showPastEvents.addEventListener('change', () => {
-                    renderEvents(events, currentFilter, startDate.value, endDate.value);
+                    renderEvents(events, currentFilter);
                 });
 
                 // Initial render
