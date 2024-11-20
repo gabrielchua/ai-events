@@ -48,6 +48,16 @@ date: 2024-11-22
 url: https://www.tech.gov.sg/media/events/govtech-openai-hackathon-2024/
 tags: [developer, hackathon]
 
+# 🍕 LLMs in Prod | Community Lunch
+date: 2024-11-22
+url: https://lu.ma/m9kam28b
+tags: [developer, social]
+
+# 🍷 LLMs in Prod Practitioners' Dinner
+date: 2024-11-22
+url: https://lu.ma/llms-in-prod-dinner
+tags: [developer, social]
+
 # 🎙️ TGB GenAI Pitch Arena
 date: 2024-11-22
 url: https://lu.ma/dd5p2ojn
